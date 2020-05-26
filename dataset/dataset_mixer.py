@@ -123,23 +123,19 @@ class DatasetMixer:
 
         return output
 
-def AudioVideoCollate(batch):
-    """Collate's training batch
-    PARAMS
-    ------
-    batch:
+def audio_video_collate_fn(batch):
+    """
+    Collate's training batch
     """
     # Right zero-pad audios and videos
-
-    max_audio_size = max(x['first_audio'].size(1) for x in batch)
-    max_video_size = max(x['first_video_features'].size(0) for x in batch)
     return {
-        'first_audios': torch.nn.utils.rnn.pad_sequence([x['first_audio'].T for x in batch], batch_first=True).transpose(2, 1).squeeze(1), #torch.stack([torch.cat((x['first_audio'], torch.zeros(x['first_audio'].size(0), max_audio_size - x['first_audio'].size(1))), 1) for x in batch], 0),
-        'second_audios': torch.nn.utils.rnn.pad_sequence([x['second_audio'].T for x in batch], batch_first=True).transpose(2, 1).squeeze(1), #torch.stack([torch.cat((x['second_audio'], torch.zeros(x['second_audio'].size(0), max_audio_size - x['second_audio'].size(1))), 1) for x in batch], 0),
-        'mix_audios': torch.nn.utils.rnn.pad_sequence([x['mix_audio'].T for x in batch], batch_first=True).transpose(2, 1).squeeze(1), #torch.stack([torch.cat((x['mixed_audio'], torch.zeros(x['mixed_audio'].size(0), max_audio_size - x['mixed_audio'].size(1))), 1) for x in batch], 0),
+        'first_audios': torch.nn.utils.rnn.pad_sequence([x['first_audio'].T for x in batch], batch_first=True).transpose(2, 1).squeeze(1), 
+        'second_audios': torch.nn.utils.rnn.pad_sequence([x['second_audio'].T for x in batch], batch_first=True).transpose(2, 1).squeeze(1),
+        'mix_audios': torch.nn.utils.rnn.pad_sequence([x['mix_audio'].T for x in batch], batch_first=True).transpose(2, 1).squeeze(1), 
+        'mix_noised_audios': torch.nn.utils.rnn.pad_sequence([x['mix_noised_audio'].T for x in batch], batch_first=True).transpose(2, 1).squeeze(1), 
         'audios_lens': torch.tensor([x['first_audio'].size(1) for x in batch]),
-        'first_videos_features': torch.nn.utils.rnn.pad_sequence([x['first_video_features'] for x in batch], batch_first=True),#torch.stack([torch.cat((x['first_video_features'], torch.zeros(max_video_size - x['first_video_features'].size(0), x['first_video_features'].size(1))), 0) for x in batch], 0),
-        'second_videos_features': torch.nn.utils.rnn.pad_sequence([x['second_video_features'] for x in batch], batch_first=True),#torch.stack([torch.cat((x['second_video_features'], torch.zeros(max_video_size - x['second_video_features'].size(0), x['second_video_features'].size(1))), 0) for x in batch], 0),
+        'first_videos_features': torch.nn.utils.rnn.pad_sequence([x['first_video_features'] for x in batch], batch_first=True), 
+        'second_videos_features': torch.nn.utils.rnn.pad_sequence([x['second_video_features'] for x in batch], batch_first=True),
         'videos_lens': torch.tensor([x['first_video_features'].size(0) for x in batch]),
     }
 
@@ -161,7 +157,7 @@ if __name__ == '__main__':
     path_to_features = Path('../video_features')
 
     dataset = DatasetMixer(path_to_video=path_to_video, n_samples=100000, duration=1.5, path_to_features=path_to_features, cache_directory=Path('train_caches'))
-    dataloader = DataLoader(dataset, batch_size=48, collate_fn=AudioVideoCollate)
+    dataloader = DataLoader(dataset, batch_size=48, collate_fn=audio_video_collate_fn)
 
 
 
@@ -182,7 +178,7 @@ if __name__ == '__main__':
     path_to_features = Path('../video_features_test')
 
     dataset = DatasetMixer(path_to_video=path_to_video, n_samples=6000, duration=1.5, path_to_features=path_to_features, cache_directory=Path('test_caches'))
-    dataloader = DataLoader(dataset, batch_size=48, collate_fn=AudioVideoCollate)
+    dataloader = DataLoader(dataset, batch_size=48, collate_fn=audio_video_collate_fn)
     
     for _ in range(2):
         for x in tqdm(dataloader):
