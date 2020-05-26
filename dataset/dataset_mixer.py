@@ -70,7 +70,7 @@ class DatasetMixer:
                 break
 
         first_audio_offset = round(random.uniform(0, first_audio_duration - self.audio_duration) - 500, -3)
-        second_audio_offset = round(random.uniform(0, second_audio_duration - self.audio_duration) -500, -3)
+        second_audio_offset = round(random.uniform(0, second_audio_duration - self.audio_duration) - 500, -3)
         output = {
             'duration': self.audio_duration,
             'first_audio_offset': first_audio_offset,

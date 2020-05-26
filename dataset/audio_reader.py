@@ -43,7 +43,7 @@ class PydubAudioReader(AudioReader):
     def __init__(self, default_format, sr):
         self.default_format = default_format
         self.sr = sr
-        
+
     def load(self, filename, format=None) -> AudioSegment:
         if not format:
             format = self.default_format
@@ -78,7 +78,8 @@ class PydubAudioReader(AudioReader):
 class PytorchAudioReader(AudioReader):
     pass
 
-target_sr=8000
+
+target_sr = 8000
 _default_audio_reader = partial(PydubAudioReader, default_format="mp4", sr=8000)
 
 
@@ -98,7 +99,6 @@ if __name__ == "__main__":
     assert result
     tensor_channels_first = reader.to_tensor(result)
     tensor_channels_last: torch.Tensor = reader.to_tensor(result, channels_first=False)
-
 
     import torchaudio, torch
     torchaudio.save(Path("video") / "qwesdaasd" / 'pydub.wav', tensor_channels_first, target_sr)
